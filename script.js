@@ -109,7 +109,10 @@ class Carousel {
     }
 
     setupEventListeners() {
-        document.querySelector('.carousel-close').addEventListener('click', () => this.close());
+        const closeBtn = document.querySelector('.carousel-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.close());
+        }
 
         const track = document.querySelector('.carousel-track');
         const items = document.querySelector('.carousel-items');
@@ -196,7 +199,7 @@ class Carousel {
     }
 
     close() {
-        const container = document.querySelector('.carousel-container');
+        const container = document.querySelector('.carousel');
         container.style.display = 'none';
         window.dispatchEvent(new CustomEvent('carouselClosed'));
     }
