@@ -68,7 +68,7 @@ body {
     cursor: grab;
 }
 
-.carousel-items {
+.carousel {
     display: flex;
     gap: 16px;
 }

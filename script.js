@@ -59,12 +59,13 @@ class Carousel {
 
     init() {
         this.renderItems();
-        this.calculateMaxScroll();
+        // ensure DOM layout is updated before measuring widths
+        requestAnimationFrame(() => this.calculateMaxScroll());
     }
 
     calculateMaxScroll() {
         const track = document.querySelector('.carousel-track');
-        const items = document.querySelector('.carousel-items');
+        const items = document.querySelector('.carousel');
         
         if (track && items) {
             const trackWidth = track.offsetWidth;
@@ -74,7 +75,7 @@ class Carousel {
     }
 
     renderItems() {
-        const container = document.querySelector('.carousel-items');
+        const container = document.querySelector('.carousel');
         container.innerHTML = carouselData.map(item => `
             <div class="carousel-item" data-id="${item.id}">
                 <div class="item-card">
@@ -115,7 +116,7 @@ class Carousel {
         }
 
         const track = document.querySelector('.carousel-track');
-        const items = document.querySelector('.carousel-items');
+        const items = document.querySelector('.carousel');
 
         // Touch support
         track.addEventListener('touchstart', (e) => {
@@ -134,8 +135,7 @@ class Carousel {
 
         track.addEventListener('touchend', (e) => {
             this.isDragging = false;
-            track.style.cursor = 'grab';
-            this.bounceBack();
+            track.style.cursor = 'grab';            
         });
 
         // Mouse support
@@ -155,14 +155,12 @@ class Carousel {
         track.addEventListener('mouseup', (e) => {
             this.isDragging = false;
             track.style.cursor = 'grab';
-            this.bounceBack();
         });
 
         track.addEventListener('mouseleave', () => {
             if (this.isDragging) {
                 this.isDragging = false;
                 track.style.cursor = 'grab';
-                this.bounceBack();
             }
         });
 
@@ -178,17 +176,33 @@ class Carousel {
             this.currentScroll += e.deltaX || e.deltaY;
             this.updateScroll(this.currentScroll);
         }, { passive: false });
+
+        // Recalculate bounds and clamp scroll on window resize
+        window.addEventListener('resize', () => {
+            // wait a frame to allow layout changes
+            requestAnimationFrame(() => {
+                this.calculateMaxScroll();
+                // clamp currentScroll to new bounds
+                this.currentScroll = Math.max(0, Math.min(this.currentScroll, this.maxScroll));
+                const itemsEl = document.querySelector('.carousel');
+                if (itemsEl) {
+                    // remove transition to avoid jumpy animation
+                    itemsEl.style.transition = 'none';
+                    itemsEl.style.transform = `translateX(${-this.currentScroll}px)`;
+                }
+            });
+        });
     }
 
     updateScroll(scrollValue) {
         // Clamp scroll value to prevent scrolling beyond boundaries during drag
         this.currentScroll = Math.max(0, Math.min(scrollValue, this.maxScroll));
-        const items = document.querySelector('.carousel-items');
+        const items = document.querySelector('.carousel');
         items.style.transform = `translateX(${-this.currentScroll}px)`;
     }
 
     scroll(distance) {
-        const items = document.querySelector('.carousel-items');
+        const items = document.querySelector('.carousel');
         items.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         this.currentScroll += distance;
         items.style.transform = `translateX(${-this.currentScroll}px)`;
@@ -199,7 +213,7 @@ class Carousel {
     }
 
     close() {
-        const container = document.querySelector('.carousel');
+        const container = document.querySelector('.carousel-container');
         container.style.display = 'none';
         window.dispatchEvent(new CustomEvent('carouselClosed'));
     }
