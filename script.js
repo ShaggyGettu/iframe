@@ -10,7 +10,7 @@ const carouselData = [
     {
         id: 2,
         title: 'Exclusive Deal 2',
-        description: 'Limited time offer available now',
+        description: 'Limited time offer available now\nLimited time offer available now\nLimited time offer available now\nLimited time offer available now\nLimited time offer available now\nLimited time offer available now',
         emoji: '⚡',
         badge: 'Hot'
     },
